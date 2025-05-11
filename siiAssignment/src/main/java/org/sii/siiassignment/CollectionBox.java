@@ -29,7 +29,8 @@ public class CollectionBox {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "collection_box_amounts", joinColumns = @JoinColumn(name = "collection_box_id"))
-    @MapKeyColumn(name = "currency_code", length = 3)
+    @MapKeyColumn(name = "currency")
+    @Enumerated(EnumType.STRING)
     @Column(name = "amount")
     private Map<Currency, BigDecimal> amounts = new HashMap<>();
 
