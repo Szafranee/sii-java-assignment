@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AddMoneyRequest {
+public class DepositMoneyRequest {
     private Currency currency;
     private BigDecimal amount;
 }

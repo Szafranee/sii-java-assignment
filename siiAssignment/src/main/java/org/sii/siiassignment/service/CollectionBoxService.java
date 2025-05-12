@@ -1,7 +1,6 @@
 package org.sii.siiassignment.service;
 
-import org.sii.siiassignment.DTO.CollectionBox.AddMoneyRequest;
-import org.sii.siiassignment.DTO.CollectionBox.AssignBoxToEventRequest;
+import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxResponse;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxSummaryResponse;
 
@@ -18,9 +17,9 @@ public interface CollectionBoxService {
 
     void unregisterCollectionBox(UUID boxId);
 
-    CollectionBoxResponse assignBoxToEvent(UUID boxId, AssignBoxToEventRequest request);
+    CollectionBoxResponse assignCollectionBoxToEvent(UUID boxId, UUID eventId);
 
-    CollectionBoxResponse addMoneyToBox(UUID boxId, AddMoneyRequest request);
+    CollectionBoxResponse depositMoneyToCollectionBox(UUID boxId, DepositMoneyRequest request);
 
     CollectionBoxResponse emptyCollectionBox(UUID boxId);
 }

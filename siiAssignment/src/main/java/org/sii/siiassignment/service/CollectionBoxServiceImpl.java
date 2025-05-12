@@ -3,8 +3,7 @@ package org.sii.siiassignment.service;
 import lombok.RequiredArgsConstructor;
 import org.sii.siiassignment.CollectionBox;
 import org.sii.siiassignment.Currency;
-import org.sii.siiassignment.DTO.CollectionBox.AddMoneyRequest;
-import org.sii.siiassignment.DTO.CollectionBox.AssignBoxToEventRequest;
+import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxResponse;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxSummaryResponse;
 import org.sii.siiassignment.FundraisingEvent;
@@ -78,7 +77,7 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
 
     @Override
     @Transactional
-    public CollectionBoxResponse assignBoxToEvent(UUID boxId, AssignBoxToEventRequest request) {
+    public CollectionBoxResponse assignCollectionBoxToEvent(UUID boxId, UUID eventId) {
         CollectionBox collectionBox = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + boxId)); // TODO: Custom exception
 
@@ -86,15 +85,15 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
             throw new IllegalStateException("Collection box must be empty to be assigned to a fundraising event.");
         }
         if (collectionBox.isAssigned()) {
-            if (!collectionBox.getFundraisingEvent().getId().equals(request.getFundraisingEventId())) {
+            if (!collectionBox.getFundraisingEvent().getId().equals(eventId)) {
                 throw new IllegalStateException("Collection box is already assigned to a different fundraising event. Unassign first.");
             } else {
                 return mapToCollectionBoxResponse(collectionBox);
             }
         }
 
-        FundraisingEvent event = fundraisingEventRepository.findById(request.getFundraisingEventId())
-                .orElseThrow(() -> new RuntimeException("FundraisingEvent not found with id: " + request.getFundraisingEventId())); // TODO: Custom exception
+        FundraisingEvent event = fundraisingEventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("FundraisingEvent not found with id: " + eventId)); // TODO: Custom exception
 
         collectionBox.setFundraisingEvent(event);
         CollectionBox savedBox = collectionBoxRepository.save(collectionBox);
@@ -103,7 +102,7 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
 
     @Override
     @Transactional
-    public CollectionBoxResponse addMoneyToBox(UUID boxId, AddMoneyRequest request) {
+    public CollectionBoxResponse depositMoneyToCollectionBox(UUID boxId, DepositMoneyRequest request) {
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + boxId)); // TODO: Custom exception
 
