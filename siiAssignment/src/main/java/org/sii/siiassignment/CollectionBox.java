@@ -29,8 +29,8 @@ public class CollectionBox {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "collection_box_amounts", joinColumns = @JoinColumn(name = "collection_box_id"))
     @MapKeyColumn(name = "currency")
-    @Enumerated(EnumType.STRING)
     @Column(name = "amount")
+    @MapKeyEnumerated(EnumType.STRING)
     private Map<Currency, BigDecimal> amounts = new HashMap<>();
 
     public boolean isEmpty() {
