@@ -10,5 +10,5 @@ import org.sii.siiassignment.Currency;
 @AllArgsConstructor
 public class CreateFundraisingEventRequest {
     private String name;
-    private Currency accountCurrency; // Or String if you prefer to validate in service
+    private Currency accountCurrency;
 }
