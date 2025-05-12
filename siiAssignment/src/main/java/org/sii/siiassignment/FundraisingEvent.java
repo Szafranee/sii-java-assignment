@@ -1,9 +1,6 @@
 package org.sii.siiassignment;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -14,7 +11,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -25,6 +21,7 @@ public class FundraisingEvent {
     private UUID id;
 
     private String name;
+    @Enumerated(EnumType.STRING)
     private Currency accountCurrency;
     private BigDecimal accountBalance;
 
