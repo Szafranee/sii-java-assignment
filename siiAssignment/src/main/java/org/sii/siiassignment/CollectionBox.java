@@ -13,9 +13,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 public class CollectionBox {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
