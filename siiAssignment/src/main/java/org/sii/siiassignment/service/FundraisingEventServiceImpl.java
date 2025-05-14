@@ -5,6 +5,7 @@ import org.sii.siiassignment.DTO.FundraisingEvent.CreateFundraisingEventRequest;
 import org.sii.siiassignment.DTO.FundraisingEvent.FinancialReportEntry;
 import org.sii.siiassignment.DTO.FundraisingEvent.FundraisingEventResponse;
 import org.sii.siiassignment.FundraisingEvent;
+import org.sii.siiassignment.exception.InvalidCurrencyException;
 import org.sii.siiassignment.exception.ResourceNotFoundException;
 import org.sii.siiassignment.repository.FundraisingEventRepository;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class FundraisingEventServiceImpl implements FundraisingEventService {
 
     private final FundraisingEventRepository fundraisingEventRepository;
+    private final ExchangeRateService exchangeRateService;
 
     @Override
     @Transactional
@@ -29,6 +32,10 @@ public class FundraisingEventServiceImpl implements FundraisingEventService {
         }
         if (request.getAccountCurrency() == null) {
             throw new IllegalArgumentException("Fundraising event account currency must be specified.");
+        }
+        if (!validateCurrency(request.getAccountCurrency())) {
+            throw new InvalidCurrencyException("Currency " + request.getAccountCurrency() + " is not supported for collection boxes. " +
+                    "Might be a non-existent currency, use ISO 4217 code.");
         }
 
         FundraisingEvent fundraisingEvent = new FundraisingEvent();
@@ -74,5 +81,14 @@ public class FundraisingEventServiceImpl implements FundraisingEventService {
                 event.getAccountBalance(),
                 event.getAccountCurrency()
         );
+    }
+
+    private boolean validateCurrency(String currency) {
+        Set<String> availableCurrencies = exchangeRateService.getRatesCache().keySet();
+        if (!availableCurrencies.contains(currency)) {
+            throw new InvalidCurrencyException("Currency " + currency + " is not supported for collection boxes. " +
+                    "Might be a non-existent currency, use ISO 4217 code.");
+        }
+        return true;
     }
 }
