@@ -3,10 +3,14 @@ package org.sii.siiassignment.service;
 import lombok.RequiredArgsConstructor;
 import org.sii.siiassignment.CollectionBox;
 import org.sii.siiassignment.Currency;
-import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxResponse;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxSummaryResponse;
+import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
 import org.sii.siiassignment.FundraisingEvent;
+import org.sii.siiassignment.exception.CollectionBoxStateException;
+import org.sii.siiassignment.exception.InvalidAmountException;
+import org.sii.siiassignment.exception.InvalidCurrencyException;
+import org.sii.siiassignment.exception.ResourceNotFoundException;
 import org.sii.siiassignment.repository.CollectionBoxRepository;
 import org.sii.siiassignment.repository.FundraisingEventRepository;
 import org.springframework.stereotype.Service;
@@ -60,7 +64,7 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
     public CollectionBoxResponse getCollectionBoxById(UUID id) {
         return collectionBoxRepository.findById(id)
                 .map(this::mapToCollectionBoxResponse)
-                .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + id)); // TODO: Custom exception
+                .orElseThrow(() -> new ResourceNotFoundException("CollectionBox not found with id: " + id));
     }
 
     @Override
@@ -82,7 +86,7 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
                 .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + boxId)); // TODO: Custom exception
 
         if (!collectionBox.isEmpty()) {
-            throw new IllegalStateException("Collection box must be empty to be assigned to a fundraising event.");
+            throw new CollectionBoxStateException("Collection box must be empty to be assigned to a fundraising event.");
         }
         if (collectionBox.isAssigned()) {
             if (!collectionBox.getFundraisingEvent().getId().equals(eventId)) {
@@ -106,8 +110,9 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + boxId)); // TODO: Custom exception
 
+        // Dla metod walidacyjnych:
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be positive.");
+            throw new InvalidAmountException("Amount must be positive.");
         }
 
         Currency currency;
@@ -118,7 +123,7 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
         }
 
         if (!ALLOWED_CURRENCIES.contains(currency)) {
-            throw new IllegalArgumentException("Currency " + currency + " is not supported for collection boxes.");
+            throw new InvalidCurrencyException("Currency " + currency + " is not supported for collection boxes.");
         }
 
         BigDecimal currentAmount = box.getAmounts().getOrDefault(currency, BigDecimal.ZERO);
