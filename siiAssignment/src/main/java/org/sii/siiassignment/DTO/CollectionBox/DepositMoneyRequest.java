@@ -3,7 +3,6 @@ package org.sii.siiassignment.DTO.CollectionBox;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.sii.siiassignment.Currency;
 
 import java.math.BigDecimal;
 
@@ -11,6 +10,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DepositMoneyRequest {
-    private Currency currency;
+    private String currency;
     private BigDecimal amount;
 }

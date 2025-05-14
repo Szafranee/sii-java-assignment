@@ -2,7 +2,6 @@ package org.sii.siiassignment.service;
 
 import lombok.RequiredArgsConstructor;
 import org.sii.siiassignment.CollectionBox;
-import org.sii.siiassignment.Currency;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxResponse;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxSummaryResponse;
 import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
@@ -18,30 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CollectionBoxServiceImpl implements CollectionBoxService {
-
-    // For simplicity, hardcoded exchange rates relative to a base currency - EUR
-    // EUR is 1.0 (base)
-    // USD to EUR: 0.92 (1 USD = 0.92 EUR)
-    // PLN to EUR: 0.23 (1 PLN = 0.23 EUR)
-    // GBP to EUR: 1.17 (1 GBP = 1.17 EUR)
-    private static final Map<Currency, BigDecimal> EXCHANGE_RATES_TO_EUR = Map.of(
-            Currency.EUR, BigDecimal.ONE,
-            Currency.USD, new BigDecimal("0.92"),
-            Currency.PLN, new BigDecimal("0.23"),
-            Currency.GBP, new BigDecimal("1.17")
-    );
-    private static final EnumSet<Currency> ALLOWED_CURRENCIES = EnumSet.of(Currency.EUR, Currency.USD, Currency.PLN, Currency.GBP);
     private final CollectionBoxRepository collectionBoxRepository;
     private final FundraisingEventRepository fundraisingEventRepository;
+    private final ExchangeRateService exchangeRateService;
 
     @Override
     @Transactional
@@ -110,27 +97,33 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
         CollectionBox box = collectionBoxRepository.findById(boxId)
                 .orElseThrow(() -> new RuntimeException("CollectionBox not found with id: " + boxId));
 
-        // Dla metod walidacyjnych:
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("Amount must be positive.");
         }
 
-        Currency currency;
-        try {
-            currency = request.getCurrency();
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid currency code provided: " + request.getCurrency(), e);
-        }
-
-        if (!ALLOWED_CURRENCIES.contains(currency)) {
-            throw new InvalidCurrencyException("Currency " + currency + " is not supported for collection boxes.");
-        }
+        String currency = validateCurrency(request);
 
         BigDecimal currentAmount = box.getAmounts().getOrDefault(currency, BigDecimal.ZERO);
         box.getAmounts().put(currency, currentAmount.add(request.getAmount()));
 
         CollectionBox savedBox = collectionBoxRepository.save(box);
         return mapToCollectionBoxResponse(savedBox);
+    }
+
+    private String validateCurrency(DepositMoneyRequest request) {
+        String currency;
+        try {
+            currency = request.getCurrency();
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid currency code provided: " + request.getCurrency(), e);
+        }
+
+        Set<String> availableCurrencies = exchangeRateService.getRatesCache().keySet();
+        if (!availableCurrencies.contains(currency)) {
+            throw new InvalidCurrencyException("Currency " + currency + " is not supported for collection boxes. " +
+                    "Might be a non-existent currency, use ISO 4217 code.");
+        }
+        return currency;
     }
 
     @Override
@@ -152,10 +145,10 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
         }
 
         BigDecimal totalAmountInEventCurrency = BigDecimal.ZERO;
-        Currency eventCurrency = event.getAccountCurrency();
+        String eventCurrency = event.getAccountCurrency();
 
-        for (Map.Entry<Currency, BigDecimal> entry : box.getAmounts().entrySet()) {
-            Currency boxCurrencyToConvert;
+        for (Map.Entry<String, BigDecimal> entry : box.getAmounts().entrySet()) {
+            String boxCurrencyToConvert;
             try {
                 boxCurrencyToConvert = entry.getKey();
             } catch (IllegalArgumentException e) {
@@ -181,23 +174,15 @@ public class CollectionBoxServiceImpl implements CollectionBoxService {
         return mapToCollectionBoxResponse(savedBox);
     }
 
-    private BigDecimal convertCurrency(BigDecimal amount, Currency fromCurrency, Currency toCurrency) {
+    private BigDecimal convertCurrency(BigDecimal amount, String fromCurrency, String toCurrency) {
         if (fromCurrency.equals(toCurrency)) {
             return amount;
         }
 
-        BigDecimal fromRate = EXCHANGE_RATES_TO_EUR.get(fromCurrency);
-        BigDecimal toRate = EXCHANGE_RATES_TO_EUR.get(toCurrency);
+        BigDecimal exchangeRate = exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
 
-        if (fromRate == null || fromRate.compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalArgumentException("Exchange rate not available for currency: " + fromCurrency);
-        }
-        if (toRate == null || toRate.compareTo(BigDecimal.ZERO) == 0) {
-            throw new IllegalArgumentException("Exchange rate not available for currency: " + toCurrency);
-        }
+        return amount.multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
 
-        BigDecimal amountInEur = amount.multiply(fromRate);
-        return amountInEur.divide(toRate, 2, RoundingMode.HALF_UP);
     }
 
 

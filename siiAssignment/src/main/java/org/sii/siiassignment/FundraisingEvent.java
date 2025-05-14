@@ -21,8 +21,7 @@ public class FundraisingEvent {
     private UUID id;
 
     private String name;
-    @Enumerated(EnumType.STRING)
-    private Currency accountCurrency;
+    private String accountCurrency;
     private BigDecimal accountBalance;
 
     @Override

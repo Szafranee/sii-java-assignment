@@ -30,8 +30,7 @@ public class CollectionBox {
     @CollectionTable(name = "collection_box_amounts", joinColumns = @JoinColumn(name = "collection_box_id"))
     @MapKeyColumn(name = "currency")
     @Column(name = "amount")
-    @MapKeyEnumerated(EnumType.STRING)
-    private Map<Currency, BigDecimal> amounts = new HashMap<>();
+    private Map<String, BigDecimal> amounts = new HashMap<>();
 
     public boolean isEmpty() {
         if (amounts == null || amounts.isEmpty()) {
