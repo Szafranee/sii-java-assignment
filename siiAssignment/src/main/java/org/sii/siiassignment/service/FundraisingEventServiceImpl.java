@@ -5,6 +5,7 @@ import org.sii.siiassignment.DTO.FundraisingEvent.CreateFundraisingEventRequest;
 import org.sii.siiassignment.DTO.FundraisingEvent.FinancialReportEntry;
 import org.sii.siiassignment.DTO.FundraisingEvent.FundraisingEventResponse;
 import org.sii.siiassignment.FundraisingEvent;
+import org.sii.siiassignment.exception.ResourceNotFoundException;
 import org.sii.siiassignment.repository.FundraisingEventRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +46,7 @@ public class FundraisingEventServiceImpl implements FundraisingEventService {
     public FundraisingEventResponse getFundraisingEventById(UUID id) {
         return fundraisingEventRepository.findById(id)
                 .map(this::mapToFundraisingEventResponse)
-                .orElseThrow(() -> new RuntimeException("FundraisingEvent not found with id: " + id)); // TODO: Custom exception
+                .orElseThrow(() -> new ResourceNotFoundException("FundraisingEvent not found with id: " + id));
     }
 
     @Override
