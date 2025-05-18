@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sii.siiassignment.DTO.FundraisingEvent.CreateFundraisingEventRequest;
 import org.sii.siiassignment.DTO.FundraisingEvent.FinancialReportEntry;
 import org.sii.siiassignment.DTO.FundraisingEvent.FundraisingEventResponse;
-import org.sii.siiassignment.FundraisingEvent;
+import org.sii.siiassignment.model.FundraisingEvent;
 import org.sii.siiassignment.exception.InvalidCurrencyException;
 import org.sii.siiassignment.exception.ResourceNotFoundException;
 import org.sii.siiassignment.repository.FundraisingEventRepository;

@@ -1,11 +1,11 @@
 package org.sii.siiassignment.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sii.siiassignment.CollectionBox;
+import org.sii.siiassignment.model.CollectionBox;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxResponse;
 import org.sii.siiassignment.DTO.CollectionBox.CollectionBoxSummaryResponse;
 import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
-import org.sii.siiassignment.FundraisingEvent;
+import org.sii.siiassignment.model.FundraisingEvent;
 import org.sii.siiassignment.exception.CollectionBoxStateException;
 import org.sii.siiassignment.exception.InvalidAmountException;
 import org.sii.siiassignment.exception.InvalidCurrencyException;

@@ -14,6 +14,7 @@ import org.sii.siiassignment.DTO.FundraisingEvent.FinancialReportEntry;
 import org.sii.siiassignment.DTO.FundraisingEvent.FundraisingEventResponse;
 import org.sii.siiassignment.exception.InvalidCurrencyException;
 import org.sii.siiassignment.exception.ResourceNotFoundException;
+import org.sii.siiassignment.model.FundraisingEvent;
 import org.sii.siiassignment.repository.FundraisingEventRepository;
 import org.sii.siiassignment.service.ExchangeRateService;
 import org.sii.siiassignment.service.FundraisingEventServiceImpl;

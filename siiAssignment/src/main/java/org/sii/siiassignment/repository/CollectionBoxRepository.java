@@ -1,6 +1,6 @@
 package org.sii.siiassignment.repository;
 
-import org.sii.siiassignment.CollectionBox;
+import org.sii.siiassignment.model.CollectionBox;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -14,6 +14,8 @@ import org.sii.siiassignment.DTO.CollectionBox.DepositMoneyRequest;
 import org.sii.siiassignment.exception.CollectionBoxStateException;
 import org.sii.siiassignment.exception.InvalidAmountException;
 import org.sii.siiassignment.exception.InvalidCurrencyException;
+import org.sii.siiassignment.model.CollectionBox;
+import org.sii.siiassignment.model.FundraisingEvent;
 import org.sii.siiassignment.repository.CollectionBoxRepository;
 import org.sii.siiassignment.repository.FundraisingEventRepository;
 import org.sii.siiassignment.service.CollectionBoxServiceImpl;

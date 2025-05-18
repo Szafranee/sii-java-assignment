@@ -1,4 +1,4 @@
-package org.sii.siiassignment;
+package org.sii.siiassignment.model;
 
 import jakarta.persistence.*;
 import lombok.*;
